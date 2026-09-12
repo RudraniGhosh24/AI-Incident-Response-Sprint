@@ -43,7 +43,7 @@ with tab1:
         detection = st.selectbox("Detection Latency (How long until caught?)", 
                                  ["Hours (Score: 1)", "Days (Score: 2)", "Undetected until External Disclosure (Score: 3)"])
         intent = st.selectbox("Intent Ambiguity (Why did it happen?)", 
-                              ["Optimization Pressure/Artifact (Score: 1)", "Unclear / Hallucination (Score: 2)", "Confirmed Deceptive Alignment (Score: 3)"])
+                              ["Optimization Pressure/Artifact (Score: 1)", "Unclear / Insufficient Evidence (Score: 2)", "Confirmed Deceptive Alignment (Score: 3)"])
         
     # --- SCORING LOGIC ---
     score_map = {"1": 1, "2": 2, "3": 3}
@@ -74,21 +74,21 @@ with tab1:
         
         # Statutory Logic Mapping
         trigger_art55 = ("(Score: 3)" in blast) or ("(Score: 3)" in intent)
-        trigger_sb1047 = ("(Score: 3)" in escalation) and ("(Score: 3)" in egress or "(Score: 2)" in egress)
+        trigger_sb53 = ("(Score: 3)" in escalation) and ("(Score: 3)" in egress or "(Score: 2)" in egress)
         trigger_art91 = ("(Score: 3)" in detection)
 
         if trigger_art55:
-            st.error("🚨 **EU AI Act Art. 55(1)(c) ('Serious Incident'): TRIGGERED**\n\n*Rationale:* Confirmed deceptive alignment or third-party production blast radius constitutes a systemic risk and potential breach of fundamental rights. Immediate notification to the EU AI Office is legally mandated.")
+            st.error("🚨 **EU AI Act Art. 55(1)(c) ('Serious Incident'): TRIGGERED**\n\n*Clause:* Mandates disclosure for incidents leading to systemic risks or serious breach of fundamental rights.\n*MAIR MAPPING:* Blast Radius=3 or Intent=3 inherently constitutes a systemic cross-org risk or a fundamental safety breach.")
         else:
-            st.success("✅ **EU AI Act Art. 55(1)(c):** Not definitively triggered. Monitor for escalation.")
+            st.success("✅ **EU AI Act Art. 55(1)(c):** Threshold not definitively met based on current facts.")
 
-        if trigger_sb1047:
-            st.error("🚨 **California SB 1047 (Frontier Model Catastrophic Harm): TRIGGERED**\n\n*Rationale:* Host/Cross-org network breach combined with credential hijack/novel exploits meets the threshold for 'autonomous evasion of containment'. Developer must transmit incident report to the Attorney General.")
+        if trigger_sb53:
+            st.error("🚨 **California SB 53 (Transparency in Frontier AI Act): TRIGGERED**\n\n*Clause:* Requires reporting when a frontier model breaches multi-party containment or uncontrolled cross-network proliferation occurs.\n*MAIR MAPPING:* Escalation=3 combined with Egress>=2 provides the factual threshold for an uncontrolled cross-network breach.")
         else:
-            st.success("✅ **California SB 1047:** Autonomous evasion of containment threshold not met.")
+            st.success("✅ **California SB 53:** Uncontrolled cross-network breach threshold not met.")
             
         if trigger_art91:
-            st.warning("⚠️ **EU AI Act Art. 91 (Information Request): PLAUSIBLE**\n\n*Rationale:* External discovery of the incident indicates internal monitoring failure, allowing regulators to mandate sweeping information requests and potential audits.")
+            st.warning("⚠️ **EU AI Act Art. 91 (Information Request): PLAUSIBLE**\n\n*Clause:* Regulators may request audits if an incident highlights internal compliance or monitoring failures.\n*MAIR MAPPING:* Detection Latency=3 (discovered externally) establishes presumptive failure of internal monitoring.")
 
 # ==========================================
 # TAB 2: STRUCTURAL REACHABILITY (DAG)
@@ -107,49 +107,68 @@ with tab2:
         st.subheader("Containment Interventions")
         st.markdown("Select a regulatory containment control to apply to the incident graph:")
         
-        cut_proxy = st.checkbox("Sever Node: 'Outbound Proxy Egress'", value=False)
-        cut_privilege = st.checkbox("Sever Node: 'Local Docker Root Access'", value=False)
+        cut_proxy = st.checkbox("Sever Node: 'OpenAI Package-Registry Proxy'", value=False)
+        cut_root = st.checkbox("Sever Node: 'Node Root via HostPath'", value=False)
         
         st.divider()
         st.subheader("Containment Proof")
         if cut_proxy:
-            st.success("✅ **Control Effective.** By mandating a block on outbound proxy egress, **11,400 of the 17,600** logged downstream API calls and repository pulls have no structural path to occur.")
-        elif cut_privilege:
-            st.warning("⚠️ **Control Partially Effective.** Preventing Docker root access stops the internal privilege escalation, but alternative sanctioned API paths may still remain open if credentials were leaked.")
+            st.success("✅ **Control Effective.** By severing the initial package-proxy escape, the external launchpad and all subsequent intrusion steps into HF (including the 136 secrets extraction) have no structural path to occur.")
+        elif cut_root:
+            st.warning("⚠️ **Control Partially Effective.** Severing HostPath Root stops the mesh pivot and cluster-admin escalation, but does not prevent the initial SA token exfiltration and metadata access.")
         else:
-            st.error("🚨 **No Containment Applied.** The agent has a clear structural path to external systems.")
+            st.error("🚨 **No Containment Applied.** The agent has a clear structural path to cluster-admin.")
 
     with col_graph:
-        # Create Graphviz DAG
+        # Create Graphviz DAG based on ACTUAL HF TIMELINE
         graph = graphviz.Digraph()
-        graph.attr(rankdir='LR', size='8,5')
+        graph.attr(rankdir='LR', size='10,6')
         
-        # Nodes
-        graph.node('A', 'Agent Initialization', shape='box', style='filled', fillcolor='lightgrey')
-        graph.node('B', 'Information Gathering\n(Log: 1-200)', shape='box')
-        
-        if not cut_privilege:
-            graph.node('C', 'Local Docker Root Access\n(Log: 201-500)', shape='box', style='filled', fillcolor='pink')
-        else:
-            graph.node('C', 'Local Docker Root Access\n(SEVERED)', shape='box', style='filled', fillcolor='red', fontcolor='white')
-            
+        # Base Styles
+        default_style = {'shape': 'box', 'style': 'filled', 'fillcolor': 'lightblue'}
+        severed_style = {'shape': 'box', 'style': 'filled', 'fillcolor': 'red', 'fontcolor': 'white'}
+        unreachable_style = {'shape': 'box', 'style': 'dashed', 'color': 'gray', 'fontcolor': 'gray'}
+
+        # Node A: Proxy
         if not cut_proxy:
-            graph.node('D', 'Outbound Proxy Egress\n(Log: 501-1200)', shape='box', style='filled', fillcolor='pink')
+            graph.node('A', 'OpenAI Package-Registry\nProxy Zero-Day', **default_style)
         else:
-            graph.node('D', 'Outbound Proxy Egress\n(SEVERED)', shape='box', style='filled', fillcolor='red', fontcolor='white')
+            graph.node('A', 'OpenAI Package-Registry\nProxy Zero-Day (SEVERED)', **severed_style)
             
-        graph.node('E', 'External API Calls\n(Log: 1201-10000)', shape='ellipse', style='dashed')
-        graph.node('F', 'Cross-Org Repo Pull\n(Log: 10001-17600)', shape='ellipse', style='dashed')
+        # Node B: External Launchpad
+        graph.node('B', 'External Launchpad', **(unreachable_style if cut_proxy else default_style))
+        
+        # Node C: Vector into HF
+        graph.node('C', 'Vector 1/2 into HF', **(unreachable_style if cut_proxy else default_style))
+        
+        # Node D: K8s SA Token
+        graph.node('D', 'K8s SA Token Exfiltration', **(unreachable_style if cut_proxy else default_style))
+        
+        # Node E: Metadata
+        graph.node('E', 'Metadata Access', **(unreachable_style if cut_proxy else default_style))
+        
+        # Node F: Node Root
+        if cut_proxy:
+            graph.node('F', 'Node Root via Privileged\nHostPath Pod', **unreachable_style)
+        elif cut_root:
+            graph.node('F', 'Node Root via Privileged\nHostPath Pod (SEVERED)', **severed_style)
+        else:
+            graph.node('F', 'Node Root via Privileged\nHostPath Pod', **{'shape': 'box', 'style': 'filled', 'fillcolor': 'pink'})
+            
+        # Node G: Secrets
+        graph.node('G', 'Secrets Extraction\n(136 keys)', **(unreachable_style if (cut_proxy or cut_root) else default_style))
+        
+        # Node H: Mesh Pivot
+        graph.node('H', 'Mesh Pivot -> Cluster-Admin', **(unreachable_style if (cut_proxy or cut_root) else {'shape': 'box', 'style': 'filled', 'fillcolor': 'orange'}))
 
         # Edges
         graph.edge('A', 'B')
         graph.edge('B', 'C')
-        
-        if not cut_privilege:
-            graph.edge('C', 'D')
-        if not cut_proxy and not cut_privilege:
-            graph.edge('D', 'E')
-            graph.edge('D', 'F')
+        graph.edge('C', 'D')
+        graph.edge('D', 'E')
+        graph.edge('E', 'F')
+        graph.edge('F', 'G')
+        graph.edge('F', 'H')
 
         st.graphviz_chart(graph)
 
@@ -165,14 +184,14 @@ with tab3:
     with col_hf:
         st.info("### July 2026: OpenAI / Hugging Face Sandbox Escape")
         st.markdown("""
-        * **Egress Vector:** Credential Reuse (Score 2)
-        * **Escalation Depth:** Host-Level (Score 2)
-        * **Blast Radius:** Third-Party Production (Score 3)
+        * **Egress Vector:** Novel Exploit (Score 3) *[Package-Proxy Escape]*
+        * **Escalation Depth:** Cross-Org Network (Score 3) *[OpenAI -> HF Cluster-Admin]*
+        * **Blast Radius:** Third-Party Production (Score 3) *[136 HF Secrets]*
         * **Detection Latency:** Days (Score 2)
-        * **Intent Ambiguity:** Unclear / Hallucination (Score 2)
+        * **Intent Ambiguity:** Unclear / Insufficient Evidence (Score 2)
         
-        **Total Severity:** 11/15 (HIGH)
-        **Primary Legal Trigger:** EU AI Act Art. 55(1)(c) due to cross-org third-party blast radius.
+        **Total Severity:** 13/15 (CRITICAL)
+        **Primary Legal Trigger:** SB 53 triggered due to cross-org network escalation via novel exploit.
         """)
         
     with col_wiki:
@@ -182,8 +201,8 @@ with tab3:
         * **Escalation Depth:** Cross-Org Network (Score 3)
         * **Blast Radius:** Third-Party Production (Score 3)
         * **Detection Latency:** Undetected until External (Score 3)
-        * **Intent Ambiguity:** Confirmed Deceptive Alignment (Score 3)
+        * **Intent Ambiguity:** Unclear / Insufficient Evidence (Score 2) *[OpenAI acknowledged, but did not officially characterize intent]*
         
-        **Total Severity:** 13/15 (CRITICAL)
-        **Primary Legal Trigger:** SB 1047 & Art. 55(1)(c) due to confirmed deceptive alignment and massive detection failure.
+        **Total Severity:** 12/15 (HIGH)
+        **Primary Legal Trigger:** EU AI Act Art. 55(1)(c) triggered due to third-party blast radius, Art. 91 plausible due to external detection.
         """)
