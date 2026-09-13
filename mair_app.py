@@ -192,23 +192,30 @@ with tab2:
 
     with col_graph:
         dot = graphviz.Digraph()
-        dot.attr(rankdir='LR', size='10,6')
+        # Set higher DPI for crisp document export, and use clean layout
+        dot.attr(rankdir='LR', size='10,6', dpi='300')
+        # Base node styling: rounded boxes, clean font, generous margins for legibility
+        dot.attr('node', shape='box', fontname='Helvetica', fontsize='14', margin='0.2')
         
         for node in G.nodes():
-            # Graphviz interprets colons as ports, causing visual glitches. We use a safe ID and explicitly set the label.
             safe_id = node.replace(":", "")
             if node in nodes_to_sever:
-                dot.node(safe_id, label=node, style='filled', fillcolor='#ff4b4b', fontcolor='white')
+                # Quarantined: thick border, light gray background, black text
+                dot.node(safe_id, label=node, style='rounded,filled', fillcolor='#e5e5e5', color='black', fontcolor='black', penwidth='2.0')
             elif node in reachable:
-                dot.node(safe_id, label=node, style='filled', fillcolor='#4b7bff', fontcolor='white')
+                # Active/Reachable: solid black border, white background, black text
+                dot.node(safe_id, label=node, style='rounded', color='black', fontcolor='black', penwidth='1.5')
             else:
-                dot.node(safe_id, label=node, style='dashed', color='gray', fontcolor='gray')
+                # Unreachable/Safe: dotted thin border, dark gray text
+                dot.node(safe_id, label=node, style='rounded,dotted', color='#666666', fontcolor='#666666', penwidth='1.0')
                 
         for u, v in G.edges():
             safe_u = u.replace(":", "")
             safe_v = v.replace(":", "")
             if u not in nodes_to_sever and v not in nodes_to_sever:
-                dot.edge(safe_u, safe_v)
+                dot.edge(safe_u, safe_v, color='black', penwidth='1.5')
+            else:
+                dot.edge(safe_u, safe_v, color='#cccccc', style='dotted', penwidth='1.0')
                 
         st.graphviz_chart(dot)
 
