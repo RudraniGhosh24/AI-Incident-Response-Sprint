@@ -195,16 +195,20 @@ with tab2:
         dot.attr(rankdir='LR', size='10,6')
         
         for node in G.nodes():
+            # Graphviz interprets colons as ports, causing visual glitches. We use a safe ID and explicitly set the label.
+            safe_id = node.replace(":", "")
             if node in nodes_to_sever:
-                dot.node(node, style='filled', fillcolor='#ff4b4b', fontcolor='white')
+                dot.node(safe_id, label=node, style='filled', fillcolor='#ff4b4b', fontcolor='white')
             elif node in reachable:
-                dot.node(node, style='filled', fillcolor='#4b7bff', fontcolor='white')
+                dot.node(safe_id, label=node, style='filled', fillcolor='#4b7bff', fontcolor='white')
             else:
-                dot.node(node, style='dashed', color='gray', fontcolor='gray')
+                dot.node(safe_id, label=node, style='dashed', color='gray', fontcolor='gray')
                 
         for u, v in G.edges():
+            safe_u = u.replace(":", "")
+            safe_v = v.replace(":", "")
             if u not in nodes_to_sever and v not in nodes_to_sever:
-                dot.edge(u, v)
+                dot.edge(safe_u, safe_v)
                 
         st.graphviz_chart(dot)
 
