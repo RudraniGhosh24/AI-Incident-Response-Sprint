@@ -193,30 +193,25 @@ with tab2:
 
     with col_graph:
         dot = graphviz.Digraph()
-        # Set higher DPI for crisp document export, and use clean layout
-        dot.attr(rankdir='LR', size='10,6', dpi='300')
-        # Base node styling: rounded boxes, clean font, generous margins for legibility
-        dot.attr('node', shape='box', fontname='Helvetica', fontsize='14', margin='0.2')
+        dot.attr(rankdir='LR')
+        dot.attr('node', shape='box')
         
         for node in G.nodes():
             safe_id = re.sub(r"[^a-zA-Z0-9]", "_", node)
             if node in nodes_to_sever:
-                # Quarantined: thick border, light gray background, black text
-                dot.node(safe_id, label=node, style='rounded,filled', fillcolor='#e5e5e5', color='black', fontcolor='black', penwidth='2.0')
+                dot.node(safe_id, label=node, style='filled', fillcolor='#e0e0e0', color='black', fontcolor='black')
             elif node in reachable:
-                # Active/Reachable: solid black border, white background, black text
-                dot.node(safe_id, label=node, style='rounded', color='black', fontcolor='black', penwidth='1.5')
+                dot.node(safe_id, label=node, style='bold', color='black', fontcolor='black')
             else:
-                # Unreachable/Safe: dotted thin border, dark gray text
-                dot.node(safe_id, label=node, style='rounded,dotted', color='#666666', fontcolor='#666666', penwidth='1.0')
+                dot.node(safe_id, label=node, style='dashed', color='gray', fontcolor='gray')
                 
         for u, v in G.edges():
             safe_u = re.sub(r"[^a-zA-Z0-9]", "_", u)
             safe_v = re.sub(r"[^a-zA-Z0-9]", "_", v)
             if u not in nodes_to_sever and v not in nodes_to_sever:
-                dot.edge(safe_u, safe_v, color='black', penwidth='1.5')
+                dot.edge(safe_u, safe_v, color='black', style='bold')
             else:
-                dot.edge(safe_u, safe_v, color='#cccccc', style='dotted', penwidth='1.0')
+                dot.edge(safe_u, safe_v, color='gray', style='dashed')
                 
         st.graphviz_chart(dot)
 
