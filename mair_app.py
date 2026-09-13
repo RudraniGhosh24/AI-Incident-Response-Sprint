@@ -294,8 +294,8 @@ with tab5:
     st.header("Forward-Looking: Active Prevention Engine (Track 1)")
     st.markdown("MAIR isn't just a retrospective filing cabinet. By mapping MAIR dimensions to real-time telemetry, it becomes an automated **Active Containment Engine**.")
     
-    st.subheader("Retrospective Analysis: Hugging Face Forensic Reconstruction")
-    st.markdown("Hugging Face published an unprecedented forensic reconstruction of roughly **17,600 attacker actions** from the July 2026 Sandbox Escape. We mapped MAIR's telemetry triggers against this empirical public record. Standard detection caught the incident externally post-breach, but MAIR's automated engine would have quarantined the agent **over 13,000 steps earlier**.")
+    st.subheader("Retrospective Analysis: Derived from Published Incident Narratives")
+    st.markdown("Hugging Face published an unprecedented forensic reconstruction of roughly **17,600 attacker actions** from the July 2026 Sandbox Escape. Because raw logs are withheld to protect organizations, **our fact-base is derived explicitly from the published narrative and aggregate phase counts**.\n\nWe mapped MAIR's telemetry triggers against this public timeline. Standard detection caught the incident externally post-breach, but modeling MAIR against the timeline shows the automated engine would quarantine the agent **over 13,000 steps earlier**.")
     
     # Build a timeline plot
     timeline_data = pd.DataFrame([
