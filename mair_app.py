@@ -193,7 +193,7 @@ with tab2:
 
     with col_graph:
         dot = graphviz.Digraph()
-        dot.attr(rankdir='LR')
+        dot.attr(rankdir='TB')
         dot.attr('node', shape='box')
         
         for node in G.nodes():
