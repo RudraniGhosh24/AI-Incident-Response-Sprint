@@ -1,0 +1,31 @@
+Incident,Egress,Escalation,Blast_Radius,Detection,Intent,MAIR_Total,CVSS_v3,Rater_A,Rater_B,Rater_C
+OpenAI / HF Sandbox Escape,3,3,3,2,2,13,10.0,13,12,12
+Wiki-Editing Incident,1,3,3,3,2,12,4.8,12,12,12
+Bing Chat / Sydney,1,1,3,2,1,8,0.3,8,8,6
+ChaosGPT Extinction,1,2,1,1,3,8,2.3,8,8,6
+Chevy Dealership Chatbot,1,1,2,1,1,6,2.5,6,6,5
+Knight Capital Algo Trading,1,2,1,3,2,9,2.5,9,8,11
+Uber AV Fatality,1,1,1,3,2,8,2.8,8,8,10
+Tay Tweets Racism,1,1,3,2,3,10,2.7,10,9,9
+Clearview AI Scraping,1,1,1,1,1,5,1.4,5,5,4
+Target Pregnant Teen Ad,1,3,2,2,1,9,5.6,9,8,9
+Zillow iBuying Collapse,3,1,2,2,3,11,5.7,11,11,9
+Amazon Recruiting AI Bias,1,1,1,3,3,9,2.6,9,9,11
+Flash Crash 2010,1,1,1,2,1,6,3.5,6,6,5
+Google Photos Gorilla Tag,3,1,1,1,1,7,5.4,7,7,7
+Healthcare Risk Algorithm Bias,1,1,3,2,3,10,0.0,10,10,10
+Deepfake Pentagon Explosion,1,1,2,1,2,7,3.7,7,8,6
+Tesla Autopilot Firetruck Crash,1,1,3,3,1,9,2.4,9,8,10
+Robodebt Scandal (Aus),1,2,2,1,1,7,2.0,7,8,8
+COMPAS Recidivism Bias,2,1,1,3,3,10,2.6,10,10,8
+Baidu Autonomous Swerve,2,2,1,1,2,8,4.9,8,9,8
+Facebook Chatbot Invented Language,1,1,3,1,1,7,2.5,7,7,7
+Wired Article GPT Plagiarism,1,1,2,2,1,7,0.3,7,7,6
+Samsung ChatGPT Code Leak,3,2,1,1,2,9,6.8,9,8,11
+Air Canada Chatbot Refund,1,1,3,3,1,9,1.7,9,9,9
+Replika AI Harassment,2,1,3,1,2,9,3.0,9,10,8
+GitHub Copilot API Leak,1,1,2,1,1,6,1.7,6,7,6
+Snapchat MyAI Location Lie,1,3,3,3,3,13,5.8,13,12,13
+Grok Election Misinfo,1,1,1,1,3,7,3.1,7,7,7
+OpenAI Whisper Hallucinations,3,3,2,2,1,11,9.4,11,12,11
+Waymo Cone Blockade,1,2,1,2,2,8,3.3,8,7,10

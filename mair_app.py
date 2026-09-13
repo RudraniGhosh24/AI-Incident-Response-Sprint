@@ -216,7 +216,7 @@ with tab3:
     st.markdown("To prove MAIR captures unique semantic threat data, we validated the framework against 30 AI incidents systematically sampled from the **AI Incident Database (AIID)**.")
     
     try:
-        df_aiid = pd.read_csv("aiid_corpus.csv")
+        df_aiid = pd.read_csv("aiid_real_corpus.csv")
         
         col_scatter, col_heat = st.columns(2)
         
@@ -246,7 +246,7 @@ with tab3:
         st.subheader("Raw AIID Corpus Data")
         st.dataframe(df_aiid, use_container_width=True)
     except Exception as e:
-        st.error("Please generate aiid_corpus.csv to view this tab.")
+        st.error("Please generate aiid_real_corpus.csv to view this tab.")
 
 # ==========================================
 # TAB 4: INTER-RATER RELIABILITY (IRR)
@@ -256,7 +256,7 @@ with tab4:
     st.markdown("A standard critique of reporting schemas is subjective variance. To combat this, MAIR's validation included an **Inter-Rater Reliability (IRR)** study across 3 independent evaluators (Security Engineer, Policy Analyst, ML Researcher) scoring the N=30 corpus.")
     
     try:
-        df_aiid = pd.read_csv("aiid_corpus.csv")
+        df_aiid = pd.read_csv("aiid_real_corpus.csv")
         st.subheader("Rater Agreement Metrics")
         
         col1, col2 = st.columns(2)
@@ -285,7 +285,7 @@ with tab4:
         st.bar_chart(df_aiid.head(10).set_index('Incident')['Adjusted_Score'])
         
     except Exception as e:
-        st.error("Please generate aiid_corpus.csv to view this tab.")
+        st.error("Please generate aiid_real_corpus.csv to view this tab.")
 
 # ==========================================
 # TAB 5: PREVENTIVE ENGINE

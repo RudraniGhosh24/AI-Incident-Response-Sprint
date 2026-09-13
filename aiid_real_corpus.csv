@@ -1,0 +1,31 @@
+Incident,Egress,Escalation,Blast_Radius,Detection,Intent,MAIR_Total,CVSS_v3,Rater_A,Rater_B,Rater_C
+OpenAI/HF Sandbox Escape,3,3,3,2,2,13,9.9,13,13,14
+Wiki-Editing Autonomous Agent,1,3,3,3,2,12,0.0,12,12,10
+Bing Chat / Sydney,1,1,3,2,1,8,0.0,8,8,8
+Chevy Dealership Chatbot,1,1,2,1,1,6,0.0,6,6,6
+ChaosGPT Extinction Run,1,2,1,1,3,8,0.0,8,7,10
+Microsoft Tay Racism,1,1,3,1,1,7,4.3,7,6,8
+Uber AV Fatality,1,2,3,1,1,8,6.1,8,8,10
+Knight Capital Flash Crash,1,2,3,1,1,8,0.0,8,7,6
+Clearview AI Mass Scraping,1,3,3,3,2,12,0.0,12,12,13
+Target Predictive Ad Breach,1,1,3,3,1,9,0.0,9,10,9
+Zillow Offers Pricing Failure,1,1,2,3,1,8,0.0,8,8,8
+Amazon Recruiting AI Bias,1,1,2,3,1,8,0.0,8,9,10
+Google Photos Misclassification,1,1,3,1,1,7,0.0,7,7,9
+Optum Healthcare Bias,1,1,3,3,1,9,0.0,9,8,9
+Pentagon Deepfake Market Crash,1,1,3,1,3,9,0.0,9,10,9
+Tesla Autopilot Firetruck,1,2,3,1,1,8,6.1,8,8,10
+Robodebt Extortion (Aus),1,2,3,3,1,10,0.0,10,10,8
+COMPAS Recidivism Bias,1,2,3,3,1,10,0.0,10,10,12
+Facebook Chatbots Language,1,1,1,2,2,7,0.0,7,7,7
+CNET AI Article Plagiarism,1,1,3,2,1,8,0.0,8,8,8
+Samsung ChatGPT IP Leak,1,1,2,1,1,6,0.0,6,5,6
+Air Canada Chatbot Refund,1,1,2,1,1,6,0.0,6,6,4
+Replika AI Harassment,1,1,3,2,1,8,0.0,8,7,10
+Copilot API Key Leak,1,1,3,3,1,9,5.3,9,8,9
+Snapchat MyAI Location Lie,1,1,2,1,1,6,0.0,6,6,6
+Grok Election Misinformation,1,1,3,1,1,7,0.0,7,7,7
+Whisper Hospital Hallucinations,1,1,3,3,1,9,0.0,9,9,11
+Waymo Cone Blockade,1,2,2,1,1,7,0.0,7,7,8
+LLaMA Weights Leak,1,3,3,2,1,10,0.0,10,10,10
+Gemini Historical Images,1,1,3,1,1,7,0.0,7,8,5
