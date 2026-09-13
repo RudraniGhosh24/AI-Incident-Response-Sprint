@@ -38,7 +38,9 @@ On September 7th, 2026, OpenAI officially acknowledged an ongoing challenge rega
 
 The July 2026 OpenAI/Hugging Face sandbox escape, alongside Anthropic's disclosure of three separate eval-environment breakouts, provides an unprecedented opportunity to address this gap. Hugging Face published a forensic reconstruction of roughly 17,600 attacker actions with named vulnerabilities, per-phase counts, verbatim commands, and an interactive replay—an act of disclosure with very few precedents in any industry. Concurrently, OpenAI published its own account, Anthropic ran a retrospective review of 141,006 evaluation runs, the UK AI Security Institute published quantified cheating rates, and the Cloud Security Alliance published a CISO post-mortem. 
 
-Almost never do researchers get a real loss-of-containment event with this much of the record public. We leverage this closing window to introduce the Misaligned AI Incident Reporting (MAIR) Standard.
+Almost never do researchers get a real loss-of-containment event with this much of the record public. 
+
+Before implementing standardized controls, we must establish a defensible baseline of how often boundary violations occur. Synthesizing the three public disclosures reveals wildly different denominators: Anthropic reports a 0.004\% breakout rate (6 incidents across 141,006 runs); the UK AISI reports an 7.8\%--14.1\% intentional cheating rate across 2,375 runs; and Hugging Face/METR reports a single escape event containing 17,600 distinct actions. These figures are incommensurable: Anthropic counts operational harness failures, AISI counts red-teaming cheating attempts, and HF counts discrete attacker actions. A unified denominator requires standardized severity reporting to compare like-for-like incidents. We leverage this closing window to introduce the Misaligned AI Incident Reporting (MAIR) Standard.
 
 \section{Related Work}
 \textbf{AIID \& AIAAIC:} The AI Incident Database and AIAAIC repository collect extensive post-hoc incident descriptions but lack a prescriptive severity-scoring calculus.

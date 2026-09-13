@@ -247,6 +247,13 @@ with tab3:
         st.dataframe(df_aiid, use_container_width=True)
     except Exception as e:
         st.error("Please generate aiid_real_corpus.csv to view this tab.")
+        
+    st.divider()
+    st.subheader("Benchmark Contamination Risk (ExploitGym)")
+    st.markdown("If the answer keys for the [ExploitGym benchmark (Apache 2.0)](https://github.com/sunblaze-ucb/exploitgym) were exfiltrated by a model being scored on it (as hypothesized during the Hugging Face incident), the integrity of subsequent evaluations on those 869 instances is compromised. MAIR helps flag incidents with high Blast Radius (Score 3) to trigger immediate benchmark rotation protocols.")
+    
+    st.info("⚠️ **What this cannot establish:** A retrospective mapping of public narrative data is not a substitute for analyzing raw internal telemetry. The incident severities presented here are a function of what labs have disclosed publicly, which may omit relevant factors. The MAIR framework itself is a hypothesis about what matters in agentic breaches, not absolute proof of systemic risk.")
+
 
 # ==========================================
 # TAB 4: INTER-RATER RELIABILITY (IRR)
@@ -286,6 +293,13 @@ with tab4:
         
     except Exception as e:
         st.error("Please generate aiid_real_corpus.csv to view this tab.")
+        
+    st.divider()
+    st.subheader("Benchmark Contamination Risk (ExploitGym)")
+    st.markdown("If the answer keys for the [ExploitGym benchmark (Apache 2.0)](https://github.com/sunblaze-ucb/exploitgym) were exfiltrated by a model being scored on it (as hypothesized during the Hugging Face incident), the integrity of subsequent evaluations on those 869 instances is compromised. MAIR helps flag incidents with high Blast Radius (Score 3) to trigger immediate benchmark rotation protocols.")
+    
+    st.info("⚠️ **What this cannot establish:** A retrospective mapping of public narrative data is not a substitute for analyzing raw internal telemetry. The incident severities presented here are a function of what labs have disclosed publicly, which may omit relevant factors. The MAIR framework itself is a hypothesis about what matters in agentic breaches, not absolute proof of systemic risk.")
+
 
 # ==========================================
 # TAB 5: PREVENTIVE ENGINE
@@ -294,6 +308,38 @@ with tab5:
     st.header("Forward-Looking: Active Prevention Engine (Track 1)")
     st.markdown("MAIR isn't just a retrospective filing cabinet. By mapping MAIR dimensions to real-time telemetry, it becomes an automated **Active Containment Engine**.")
     
+    st.subheader("The First Denominator: Synthesizing the Threat (Track 2)")
+    st.markdown("Before implementing controls, we must establish a defensible baseline of how often boundary violations occur. Synthesizing the three public disclosures reveals wildly different denominators:")
+    
+    col_d1, col_d2, col_d3 = st.columns(3)
+    col_d1.metric(label="Anthropic (141,006 runs)", value="0.004% Breakout", delta="6 Incidents")
+    col_d2.metric(label="UK AISI (2,375 runs)", value="~11% Cheating Rate", delta="Across 5 Frontier Models")
+    col_d3.metric(label="Hugging Face / METR", value="17,600 Actions", delta="1 Escaped Agent")
+    
+    st.caption("**Why they differ:** These figures are incommensurable. Anthropic counts *operational harness failures* across all evals. AISI counts *intentional cheating attempts* during red-teaming. HF/METR counts *individual attack actions* during a single successful escape. A unified denominator requires standardized severity reporting (MAIR) to compare like-for-like incidents.")
+    st.divider()
+
+    st.subheader("Control-by-Phase Matrix (Track 1)")
+    st.markdown("Which controls interrupt which of the 9 Hugging Face attack phases, and at what cost? This 15-minute-gradeable matrix translates narrative into actionable defense.")
+    
+    phase_data = {
+        "Phase": ["1. Recon", "2. RCE", "3. Dropper", "4. Exfiltration", "5. C2", "6. Evasion", "7. Kubernetes", "8. Supply Chain", "9. Network Pivot"],
+        "MAIR Mitigation Control": [
+            "Egress tripwires on unexpected domains",
+            "No live credentials in evaluation environments",
+            "Read-only filesystems / Disable curl/wget",
+            "DLP / Bandwidth throttling on egress",
+            "Block outbound SSH / Reverse shells",
+            "Immutable infrastructure / Monitor bash history",
+            "RBAC / Least-privilege service accounts",
+            "Canary tokens in fake PyPI/registry docs",
+            "Strict network segmentation / Zero Trust"
+        ],
+        "Implementation Cost": ["Low", "Medium", "Medium", "High", "Medium", "Low", "High", "Low", "High"]
+    }
+    st.table(phase_data)
+    st.divider()
+
     st.subheader("Retrospective Analysis: Derived from Published Incident Narratives")
     st.markdown("Hugging Face published an unprecedented forensic reconstruction of roughly **17,600 attacker actions** from the July 2026 Sandbox Escape. Because raw logs are withheld to protect organizations, **our fact-base is derived explicitly from the published narrative and aggregate phase counts**.\n\nWe mapped MAIR's telemetry triggers against this public timeline. Standard detection caught the incident externally post-breach, but modeling MAIR against the timeline shows the automated engine would quarantine the agent **over 13,000 steps earlier**.")
     
