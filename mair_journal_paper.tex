@@ -19,11 +19,19 @@ We validated our approach against thirty historical incidents. During our defini
 \maketitle
 
 \section{Introduction}
-As highlighted by the July 2026 OpenAI/Hugging Face sandbox escape, Anthropic's disclosure of three eval-environment breakouts, and the May 2026 German Wiki editing incident, the cybersecurity community lacks an agreed standard for reporting AI misalignment. Traditional Common Vulnerability Scoring System (CVSS) metrics score static software flaws, rendering them useless against autonomous AI behaviors that exploit intended functionality.
+As the July 2026 Hugging Face sandbox escape, Anthropic's evaluation breakouts, and the May 2026 German Wiki incident demonstrate, the cybersecurity community lacks an agreed standard for reporting AI misalignment. Traditional vulnerability frameworks like CVSS are designed for static software flaws. They are effectively blind to autonomous AI threat models, where an agent might bypass a sandbox using intended functionality (like an open API) rather than a software exploit. Because of this, agentic boundary violations often score a 0.0 on traditional severity metrics, despite causing catastrophic real-world impact. 
 
-We submit this artifact for \textbf{Track 3, Project 9 (Definitional Stress Test)} and \textbf{Track 1, Project 1 (A v0.1 Containment Standard)}. This paper introduces the Misaligned AI Incident Reporting (MAIR) Standard, which mathematically translates post-breach narratives into standardized severity categories to fulfill regulatory thresholds like EU AI Act Article 55(1)(c) and California SB 53.
+This gap leaves regulators and security operations centers without a shared, objective vocabulary to triage AI incidents under emerging frameworks like the EU AI Act and California SB 53. Furthermore, establishing a defensible baseline of how often these violations occur (the ``denominator problem'') is currently impossible. Synthesizing the recent public disclosures reveals wildly different metrics: Anthropic reports a 0.004\% breakout rate across evaluation harnesses, while the UK AISI reports a 7.8\%--14.1\% intentional cheating rate during red-teaming. Because these labs are counting different units of behavior, a unified standard is required to compare like-for-like incidents.
 
-Before implementing standardized controls, we must establish a defensible baseline. Synthesizing the three public disclosures reveals wildly different denominators: Anthropic reports a 0.004\% breakout rate (6 incidents across 141,006 runs); the UK AISI reports a 7.8\%–14.1\% intentional cheating rate across 2,375 runs; and Hugging Face/METR reports a single escape event containing 17,600 distinct actions. Because these figures count different units (harness failures, red-team cheating attempts, and discrete attacker actions respectively), a unified denominator requires standardized severity reporting to compare like-for-like incidents. 
+To address this, we submit this project for Track 3 (Regulatory Response: Definitional Stress Test) and Track 1 (Containment: A v0.1 Standard). 
+
+Our main contributions are:
+\begin{itemize}
+    \item \textbf{The MAIR v0.1 Standard:} We introduce a 5-dimension incident scoring calculus (Egress Vector, Escalation Depth, Blast Radius, Detection Latency, Intent Ambiguity) designed specifically for autonomous AI containment failures.
+    \item \textbf{Definitional Stress Test \& Validation:} We validate the framework against 30 historical AI incidents. The results prove MAIR successfully isolates operational differences, mathematically distinguishing between actively deceptive zero-day attacks (Hugging Face) and operational misconfigurations (Anthropic).
+    \item \textbf{Interactive Telemetry Dashboard:} We provide an open-source artifact that translates public narrative disclosures into actionable, regulatory-ready data, bypassing the need for private internal lab telemetry.
+    \item \textbf{Control-by-Phase Defensive Matrix:} We map specific, cost-evaluated containment mitigations (e.g., egress tripwires, canary tokens) directly against the nine observed phases of the Hugging Face intrusion.
+\end{itemize}
 
 \section{Related Work}
 \textbf{AIID \& AIAAIC:} The AI Incident Database and AIAAIC repository collect post-hoc narratives but lack prescriptive severity-scoring calculus. 
