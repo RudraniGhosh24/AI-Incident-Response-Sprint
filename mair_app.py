@@ -247,6 +247,8 @@ with tab3:
         **Key Insights:**
         * High-severity incidents cluster heavily on **Escalation** and **Blast Radius**.
         * The Chevy Chatbot and ChaosGPT differ drastically in **Intent** and **Escalation**, accurately reflecting why ChaosGPT triggers EU Art 55 despite lower blast radius.
+        
+        **Note on Intent Ambiguity:** Even with deep post-hoc analysis—such as parsing the staggering **17,600-step execution log** from the OpenAI/HF Sandbox Escape—intent often remains obfuscated by optimization artifacts. This highlights the necessity for our proposed behavioral telemetrics in Track 1.
         """)
 
 # ==========================================
@@ -264,7 +266,7 @@ with tab4:
             "Container escape syscalls, cross-namespace K8s requests",
             "Data exfiltration volume spikes, external DB queries",
             "Heartbeat timeouts from internal safety monitors",
-            "Hidden chain-of-thought divergence, deception heuristics"
+            "Hidden chain-of-thought divergence (e.g. loops >10k steps)"
         ]
     })
     st.table(rules_df)

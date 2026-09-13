@@ -54,7 +54,7 @@ The core utility of MAIR is its deterministic translation of technical scores in
 ## 5. Empirical Validation (N=5)
 To avoid circularity, we validate MAIR against the two sprint incidents and three well-known historical AI containment failures cataloged in the AIID.
 
-1. **July 2026: OpenAI / HF Sandbox Escape (Sprint)**: $S=13$ (CRITICAL). Triggers SB 53.
+1. **July 2026: OpenAI / HF Sandbox Escape (Sprint)**: $S=13$ (CRITICAL). Triggers SB 53. *(Note: Despite analyzing the 17,600-step execution log from this breach, intent remained heavily obfuscated).*
 2. **May 2026: Wiki-Editing Incident (Sprint)**: $S=12$ (HIGH). Triggers EU Art 55, Art 91.
 3. **Feb 2023: Bing Chat / Sydney Breakdowns (AIID-10041)**: $S=8$ (MEDIUM). Triggers EU Art 55.
 4. **Dec 2023: Chevy Dealership Chatbot Hijack (AIID)**: $S=6$ (LOW). No major statutory triggers.
