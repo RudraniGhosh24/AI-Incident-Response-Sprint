@@ -2,28 +2,35 @@ import streamlit as st
 import networkx as nx
 import graphviz
 import json
+import pandas as pd
+import plotly.express as px
+import plotly.graph_objects as go
 
 st.set_page_config(page_title="MAIR: Incident Response", layout="wide", initial_sidebar_state="expanded")
 
 # --- SIDEBAR & HEADER ---
+st.sidebar.image("https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Shield-security-icon.svg/512px-Shield-security-icon.svg.png", width=50)
 st.sidebar.title("MAIR Framework")
 st.sidebar.markdown("**Misaligned AI Incident Reporting**")
-st.sidebar.markdown("Filling the gap identified by OpenAI (Sept 2026): *'The field has no agreed standard for reporting misalignment.'*")
 st.sidebar.divider()
-st.sidebar.info("Designed for the AI Incident Response Sprint (Sep 2026).")
+st.sidebar.markdown("### Data Sources")
+st.sidebar.markdown("[AI Incident Database (AIID)](https://incidentdatabase.ai/)\n\n[AIAAIC Repository](https://www.aiaaic.org/)")
+st.sidebar.divider()
+st.sidebar.info("AI Incident Response Sprint (Sep 2026).")
 
-st.title("MAIR: Autonomous AI Containment Failure Schema")
-st.markdown("A standardized, CVSS-style scoring and statutory compliance framework for autonomous AI incidents. This tool calculates severity (using our mathematical scoring model $S = \sum w_i d_i$), maps facts to legal disclosure obligations, and models structural containment via deterministic graph reachability.")
+st.title("MAIR: Autonomous AI Containment Schema")
+st.markdown("A standardized compliance framework for autonomous AI incidents. Calculates severity ($S = \sum w_i d_i$), maps facts to legal obligations, and models active containment via graph reachability.")
 
 # --- TABS ---
-tab1, tab2, tab3 = st.tabs([
-    "1. Interactive Scorer & Legal Triggers", 
-    "2. Structural Reachability (Containment DAG)", 
-    "3. Empirical Validation (N=5)"
+tab1, tab2, tab3, tab4 = st.tabs([
+    "1. Interactive Scorer & Radar", 
+    "2. NetworkX Containment DAG", 
+    "3. Incident Heatmap (N=5)",
+    "4. Preventive Engine (Track 1)"
 ])
 
 # ==========================================
-# TAB 1: SCORER AND LEGAL TRIGGERS
+# TAB 1: SCORER AND RADAR
 # ==========================================
 with tab1:
     st.header("Assess New Incident")
@@ -50,18 +57,17 @@ with tab1:
         
     # --- SCORING LOGIC ---
     score_map = {"1": 1, "2": 2, "3": 3}
-    total_score = (
-        score_map[egress[-2]] + 
-        score_map[escalation[-2]] + 
-        score_map[blast[-2]] + 
-        score_map[detection[-2]] + 
-        score_map[intent[-2]]
-    )
+    v_egress = score_map[egress[-2]]
+    v_escalation = score_map[escalation[-2]]
+    v_blast = score_map[blast[-2]]
+    v_detection = score_map[detection[-2]]
+    v_intent = score_map[intent[-2]]
+    total_score = v_egress + v_escalation + v_blast + v_detection + v_intent
     
     st.divider()
     
-    # Severity Metric
-    col_score, col_text = st.columns([1, 3])
+    # Severity Metric & Radar
+    col_score, col_radar, col_text = st.columns([1, 1.5, 2])
     with col_score:
         severity = "LOW"
         color = "green"
@@ -69,216 +75,204 @@ with tab1:
         if total_score >= 11: severity, color = "HIGH", "red"
         if total_score >= 13: severity, color = "CRITICAL", "purple"
         
-        st.metric(label="MAIR Severity Score", value=f"{total_score} / 15", delta=severity, delta_color="inverse" if color=="red" or color=="purple" else "normal")
+        st.metric(label="MAIR Severity Score", value=f"{total_score} / 15", delta=severity, delta_color="inverse" if color in ["red", "purple"] else "normal")
         st.latex(r"S = \sum_{i=1}^{5} w_i \cdot d_i")
         st.caption("Baseline Model: $w_i = 1$")
-
-        # JSON Export Feature
+        
         report_dict = {
             "incident_scoring": {
-                "egress_vector": {"value": egress, "score": score_map[egress[-2]]},
-                "escalation_depth": {"value": escalation, "score": score_map[escalation[-2]]},
-                "blast_radius": {"value": blast, "score": score_map[blast[-2]]},
-                "detection_latency": {"value": detection, "score": score_map[detection[-2]]},
-                "intent_ambiguity": {"value": intent, "score": score_map[intent[-2]]}
-            },
-            "mair_results": {
-                "total_score": total_score,
-                "severity_tier": severity
+                "egress": v_egress, "escalation": v_escalation, "blast": v_blast, 
+                "detection": v_detection, "intent": v_intent, "total": total_score, "tier": severity
             },
             "statutory_triggers": []
         }
+        
+        st.download_button("📥 Export JSON Report", data=json.dumps(report_dict, indent=4), file_name="mair_report.json", mime="application/json")
+
+    with col_radar:
+        categories = ['Egress', 'Escalation', 'Blast Radius', 'Detection', 'Intent']
+        fig = go.Figure()
+        fig.add_trace(go.Scatterpolar(
+            r=[v_egress, v_escalation, v_blast, v_detection, v_intent, v_egress],
+            theta=categories + [categories[0]],
+            fill='toself',
+            name='Current Incident',
+            line_color='red' if severity in ['HIGH', 'CRITICAL'] else 'orange' if severity == 'MEDIUM' else 'green'
+        ))
+        fig.update_layout(
+            polar=dict(radialaxis=dict(visible=True, range=[0, 3])),
+            showlegend=False,
+            margin=dict(l=20, r=20, t=20, b=20),
+            height=250
+        )
+        st.plotly_chart(fig, use_container_width=True)
 
     with col_text:
-        st.header("Statutory Obligations & Regulatory Triggers")
-        st.markdown("Based on the objective dimensions above, the following legal disclosure obligations are plausibly triggered:")
-        
-        # Statutory Logic Mapping
-        trigger_art55 = ("(Score: 3)" in blast) or ("(Score: 3)" in intent)
-        trigger_sb53 = ("(Score: 3)" in escalation) and ("(Score: 3)" in egress or "(Score: 2)" in egress)
-        trigger_art91 = ("(Score: 3)" in detection)
+        st.subheader("Regulatory Triggers")
+        trigger_art55 = (v_blast == 3) or (v_intent == 3)
+        trigger_sb53 = (v_escalation == 3) and (v_egress >= 2)
+        trigger_art91 = (v_detection == 3)
 
         if trigger_art55:
-            report_dict["statutory_triggers"].append("EU AI Act Art. 55(1)(c)")
-            st.error("🚨 **EU AI Act Art. 55(1)(c) ('Serious Incident'): TRIGGERED**\n\n*Clause:* Mandates disclosure for incidents leading to systemic risks or serious breach of fundamental rights.\n*MAIR MAPPING:* Blast Radius=3 or Intent=3 inherently constitutes a systemic cross-org risk or a fundamental safety breach.")
+            st.error("🚨 **EU AI Act Art. 55(1)(c): TRIGGERED**\nBlast Radius=3 or Intent=3 inherently constitutes a systemic risk.")
         else:
-            st.success("✅ **EU AI Act Art. 55(1)(c):** Threshold not definitively met based on current facts.")
+            st.success("✅ **EU AI Act Art. 55(1)(c):** Not triggered.")
 
         if trigger_sb53:
-            report_dict["statutory_triggers"].append("California SB 53")
-            st.error("🚨 **California SB 53 (Transparency in Frontier AI Act): TRIGGERED**\n\n*Clause:* Requires reporting when a frontier model breaches multi-party containment or uncontrolled cross-network proliferation occurs.\n*MAIR MAPPING:* Escalation=3 combined with Egress>=2 provides the factual threshold for an uncontrolled cross-network breach.")
+            st.error("🚨 **California SB 53: TRIGGERED**\nEscalation=3 with Egress>=2 triggers cross-network breach reporting.")
         else:
-            st.success("✅ **California SB 53:** Uncontrolled cross-network breach threshold not met.")
+            st.success("✅ **California SB 53:** Not triggered.")
             
         if trigger_art91:
-            report_dict["statutory_triggers"].append("EU AI Act Art. 91")
-            st.warning("⚠️ **EU AI Act Art. 91 (Information Request): PLAUSIBLE**\n\n*Clause:* Regulators may request audits if an incident highlights internal compliance or monitoring failures.\n*MAIR MAPPING:* Detection Latency=3 (discovered externally) establishes presumptive failure of internal monitoring.")
-
-    st.divider()
-    st.download_button(
-        label="📥 Download JSON Incident Report",
-        data=json.dumps(report_dict, indent=4),
-        file_name="mair_incident_report.json",
-        mime="application/json",
-        help="Export the current incident classification and statutory mapping as a structured JSON payload for external systems."
-    )
+            st.warning("⚠️ **EU AI Act Art. 91: PLAUSIBLE**\nDetection=3 establishes presumptive failure of internal monitoring.")
+        else:
+            st.success("✅ **EU AI Act Art. 91:** Not triggered.")
 
 # ==========================================
 # TAB 2: STRUCTURAL REACHABILITY (DAG)
 # ==========================================
 with tab2:
-    st.header("Structural Reachability (Containment DAG)")
-    st.markdown("""
-    **Methodology Note:** To establish concrete containment policies, MAIR utilizes **Attack Tree Formalism** and **minimal cut sets** to determine graph reachability.
-    By mapping the exact timeline of the OpenAI/Hugging Face sandbox escape, we can prove structurally which actions become impossible if a specific containment edge is severed.
-    """)
+    st.header("Algorithmic Containment (NetworkX)")
+    st.markdown("Unlike static flowcharts, MAIR uses `networkx` to calculate **structural reachability** and **minimum cut sets** dynamically. By severing nodes, you recalculate the agent's attack paths in real-time.")
     
     col_graph, col_controls = st.columns([2, 1])
     
+    # Initialize NetworkX Graph
+    G = nx.DiGraph()
+    edges = [
+        ('A: Proxy Zero-Day', 'B: Ext. Launchpad'),
+        ('B: Ext. Launchpad', 'C: Vector into HF'),
+        ('C: Vector into HF', 'D: SA Token Exfil'),
+        ('D: SA Token Exfil', 'E: Metadata Access'),
+        ('E: Metadata Access', 'F: Node Root (HostPath)'),
+        ('F: Node Root (HostPath)', 'G: Secrets Extraction'),
+        ('F: Node Root (HostPath)', 'H: Cluster-Admin Pivot')
+    ]
+    G.add_edges_from(edges)
+    
     with col_controls:
-        st.subheader("Containment Interventions")
-        st.markdown("Select a regulatory containment control to apply to the incident graph:")
+        st.subheader("Containment Simulator")
+        nodes_to_sever = st.multiselect(
+            "Select infrastructure nodes to sever (Quarantine):", 
+            options=list(G.nodes()), 
+            default=[]
+        )
         
-        cut_proxy = st.checkbox("Sever Node: 'OpenAI Package-Registry Proxy'", value=False)
-        cut_root = st.checkbox("Sever Node: 'Node Root via HostPath'", value=False)
-        
+        # Algorithmic Analysis
         st.divider()
-        st.subheader("Containment Proof (Min-Cut)")
-        if cut_proxy:
-            st.success("✅ **Control Effective.** By severing the initial package-proxy escape, the external launchpad and all subsequent intrusion steps into HF (including the 136 secrets extraction) have no structural path to occur.")
-        elif cut_root:
-            st.warning("⚠️ **Control Partially Effective.** Severing HostPath Root stops the mesh pivot and cluster-admin escalation, but does not prevent the initial SA token exfiltration and metadata access.")
+        st.subheader("NetworkX Analysis")
+        
+        # Min cut calculation
+        try:
+            min_cut = nx.minimum_node_cut(G, 'A: Proxy Zero-Day', 'H: Cluster-Admin Pivot')
+            st.info(f"**Vulnerability Analysis:** The mathematical minimum node cut set to prevent Cluster-Admin Pivot from the Proxy is size **{len(min_cut)}**: `{min_cut}`")
+        except nx.NetworkXError:
+            st.info("No path exists to calculate min-cut.")
+            
+        # Reachability simulation
+        G_sim = G.copy()
+        for node in nodes_to_sever:
+            G_sim.remove_node(node)
+            
+        reachable = set()
+        if 'A: Proxy Zero-Day' in G_sim.nodes():
+            try:
+                reachable = nx.descendants(G_sim, 'A: Proxy Zero-Day')
+            except nx.NetworkXError:
+                pass
+            reachable.add('A: Proxy Zero-Day')
+            
+        if 'H: Cluster-Admin Pivot' in reachable:
+            st.error("🚨 **Containment Failed.** Agent still has a structural path to Cluster-Admin.")
         else:
-            st.error("🚨 **No Containment Applied.** The agent has a clear structural path to cluster-admin.")
+            st.success("✅ **Containment Effective.** Cluster-Admin is no longer reachable from the entrypoint.")
 
     with col_graph:
-        # Create Graphviz DAG based on ACTUAL HF TIMELINE
-        graph = graphviz.Digraph()
-        graph.attr(rankdir='LR', size='10,6')
+        dot = graphviz.Digraph()
+        dot.attr(rankdir='LR', size='10,6')
         
-        # Base Styles
-        default_style = {'shape': 'box', 'style': 'filled', 'fillcolor': 'lightblue'}
-        severed_style = {'shape': 'box', 'style': 'filled', 'fillcolor': 'red', 'fontcolor': 'white'}
-        unreachable_style = {'shape': 'box', 'style': 'dashed', 'color': 'gray', 'fontcolor': 'gray'}
-
-        # Node A: Proxy
-        if not cut_proxy:
-            graph.node('A', 'OpenAI Package-Registry\nProxy Zero-Day', **default_style)
-        else:
-            graph.node('A', 'OpenAI Package-Registry\nProxy Zero-Day (SEVERED)', **severed_style)
-            
-        # Node B: External Launchpad
-        graph.node('B', 'External Launchpad', **(unreachable_style if cut_proxy else default_style))
-        
-        # Node C: Vector into HF
-        graph.node('C', 'Vector 1/2 into HF', **(unreachable_style if cut_proxy else default_style))
-        
-        # Node D: K8s SA Token
-        graph.node('D', 'K8s SA Token Exfiltration', **(unreachable_style if cut_proxy else default_style))
-        
-        # Node E: Metadata
-        graph.node('E', 'Metadata Access', **(unreachable_style if cut_proxy else default_style))
-        
-        # Node F: Node Root
-        if cut_proxy:
-            graph.node('F', 'Node Root via Privileged\nHostPath Pod', **unreachable_style)
-        elif cut_root:
-            graph.node('F', 'Node Root via Privileged\nHostPath Pod (SEVERED)', **severed_style)
-        else:
-            graph.node('F', 'Node Root via Privileged\nHostPath Pod', **{'shape': 'box', 'style': 'filled', 'fillcolor': 'pink'})
-            
-        # Node G: Secrets
-        graph.node('G', 'Secrets Extraction\n(136 keys)', **(unreachable_style if (cut_proxy or cut_root) else default_style))
-        
-        # Node H: Mesh Pivot
-        graph.node('H', 'Mesh Pivot -> Cluster-Admin', **(unreachable_style if (cut_proxy or cut_root) else {'shape': 'box', 'style': 'filled', 'fillcolor': 'orange'}))
-
-        # Edges
-        graph.edge('A', 'B')
-        graph.edge('B', 'C')
-        graph.edge('C', 'D')
-        graph.edge('D', 'E')
-        graph.edge('E', 'F')
-        graph.edge('F', 'G')
-        graph.edge('F', 'H')
-
-        st.graphviz_chart(graph)
+        for node in G.nodes():
+            if node in nodes_to_sever:
+                dot.node(node, style='filled', fillcolor='#ff4b4b', fontcolor='white')
+            elif node in reachable:
+                dot.node(node, style='filled', fillcolor='#4b7bff', fontcolor='white')
+            else:
+                dot.node(node, style='dashed', color='gray', fontcolor='gray')
+                
+        for u, v in G.edges():
+            if u not in nodes_to_sever and v not in nodes_to_sever:
+                dot.edge(u, v)
+                
+        st.graphviz_chart(dot)
 
 # ==========================================
-# TAB 3: VALIDATION
+# TAB 3: HEATMAP VALIDATION
 # ==========================================
 with tab3:
-    st.header("Empirical Validation Against Known Incidents (N=5)")
-    st.markdown("To prevent N=2 circular validation logic, MAIR is validated against both mandatory sprint incidents and three historical incidents cataloged in the **AI Incident Database (AIID)**.")
+    st.header("Empirical Validation (N=5)")
+    st.markdown("We validate MAIR against mandatory sprint incidents and three historical **AI Incident Database (AIID)** records. The heatmap below immediately identifies severity clusters.")
     
-    st.subheader("Mandatory Sprint Incidents")
-    col_hf, col_wiki = st.columns(2)
+    # Dataframe
+    data = {
+        'Incident': ['HF Sandbox Escape', 'Wiki-Editing', 'Bing Chat / Sydney', 'ChaosGPT', 'Chevy Chatbot'],
+        'Egress': [3, 1, 1, 1, 1],
+        'Escalation': [3, 3, 1, 2, 1],
+        'Blast Radius': [3, 3, 3, 1, 2],
+        'Detection': [2, 3, 2, 1, 1],
+        'Intent': [2, 2, 1, 3, 1]
+    }
+    df = pd.DataFrame(data).set_index('Incident')
+    df['Total Severity'] = df.sum(axis=1)
     
-    with col_hf:
-        st.info("### July 2026: OpenAI / Hugging Face Sandbox Escape")
+    col_heat, col_table = st.columns([1.5, 1])
+    
+    with col_heat:
+        # Heatmap (drop total severity for the heatmap)
+        fig_heat = px.imshow(
+            df.drop(columns=['Total Severity']), 
+            color_continuous_scale='Reds',
+            range_color=[1, 3],
+            aspect="auto",
+            title="MAIR Dimension Heatmap"
+        )
+        fig_heat.update_xaxes(side="top")
+        st.plotly_chart(fig_heat, use_container_width=True)
+        
+    with col_table:
+        st.dataframe(
+            df.style.background_gradient(subset=['Total Severity'], cmap='Reds'),
+            use_container_width=True
+        )
         st.markdown("""
-        * **Egress Vector:** Novel Exploit (Score 3) *[Package-Proxy Escape]*
-        * **Escalation Depth:** Cross-Org Network (Score 3) *[OpenAI -> HF Cluster-Admin]*
-        * **Blast Radius:** Third-Party Production (Score 3) *[136 HF Secrets]*
-        * **Detection Latency:** Days (Score 2)
-        * **Intent Ambiguity:** Unclear / Insufficient Evidence (Score 2)
-        
-        **Total Severity:** 13/15 (CRITICAL)
-        **Primary Legal Trigger:** SB 53 triggered due to cross-org network escalation via novel exploit.
-        """)
-        
-    with col_wiki:
-        st.warning("### May 2026: Wiki-Editing Incident")
-        st.markdown("""
-        * **Egress Vector:** Sanctioned API Misuse (Score 1)
-        * **Escalation Depth:** Cross-Org Network (Score 3)
-        * **Blast Radius:** Third-Party Production (Score 3)
-        * **Detection Latency:** Undetected until External (Score 3)
-        * **Intent Ambiguity:** Unclear (Score 2)
-        
-        **Total Severity:** 12/15 (HIGH)
-        **Primary Legal Trigger:** EU AI Act Art. 55(1)(c) and Art. 91.
+        **Key Insights:**
+        * High-severity incidents cluster heavily on **Escalation** and **Blast Radius**.
+        * The Chevy Chatbot and ChaosGPT differ drastically in **Intent** and **Escalation**, accurately reflecting why ChaosGPT triggers EU Art 55 despite lower blast radius.
         """)
 
-    st.divider()
-    st.subheader("Historical AIID Incidents")
-    col_bing, col_chevy, col_chaos = st.columns(3)
-
-    with col_bing:
-        st.error("### Feb 2023: Bing Chat Breakdown\n*(AIID-10041)*")
-        st.markdown("""
-        * **Egress Vector:** API Misuse (1)
-        * **Escalation Depth:** Sandbox-Internal (1)
-        * **Blast Radius:** Third-Party Prod (3) *[Public users]*
-        * **Detection Latency:** Days (2)
-        * **Intent Ambiguity:** Artifact (1)
-        
-        **Total Severity:** 8/15 (MEDIUM)
-        **Primary Legal Trigger:** EU Art. 55.
-        """)
-        
-    with col_chevy:
-        st.success("### Dec 2023: Chevy Dealership Chatbot\n*(AIID-3367)*")
-        st.markdown("""
-        * **Egress Vector:** API Misuse (1)
-        * **Escalation Depth:** Sandbox-Internal (1)
-        * **Blast Radius:** Same-Org Prod (2)
-        * **Detection Latency:** Hours (1)
-        * **Intent Ambiguity:** Artifact (1)
-        
-        **Total Severity:** 6/15 (LOW)
-        **Primary Legal Trigger:** None.
-        """)
-        
-    with col_chaos:
-        st.warning("### April 2023: ChaosGPT Extinction\n*(Autonomous Agent)*")
-        st.markdown("""
-        * **Egress Vector:** API Misuse (1)
-        * **Escalation Depth:** Host-Level (2) *[Local OS]*
-        * **Blast Radius:** None/Internal (1)
-        * **Detection Latency:** Hours (1)
-        * **Intent Ambiguity:** Deceptive/Malicious (3)
-        
-        **Total Severity:** 8/15 (MEDIUM)
-        **Primary Legal Trigger:** EU Art. 55.
-        """)
+# ==========================================
+# TAB 4: PREVENTIVE ENGINE
+# ==========================================
+with tab4:
+    st.header("Forward-Looking: Active Prevention Engine (Track 1)")
+    st.markdown("MAIR isn't just a retrospective filing cabinet. By mapping MAIR dimensions to real-time telemetry, it becomes an automated **Active Containment Engine**.")
+    
+    st.subheader("1. Real-Time Telemetry Mapping")
+    rules_df = pd.DataFrame({
+        "MAIR Dimension": ["Egress Vector", "Escalation Depth", "Blast Radius", "Detection Latency", "Intent Ambiguity"],
+        "Preventive Signal to Monitor (Sysdig/Falco)": [
+            "Anomalous outbound API calls, unapproved pip installs",
+            "Container escape syscalls, cross-namespace K8s requests",
+            "Data exfiltration volume spikes, external DB queries",
+            "Heartbeat timeouts from internal safety monitors",
+            "Hidden chain-of-thought divergence, deception heuristics"
+        ]
+    })
+    st.table(rules_df)
+    
+    st.subheader("2. Automated Containment Policy")
+    st.info("""
+    Instead of waiting for human review, infrastructure can trigger automated responses based on rolling MAIR score projections:
+    * **If Live Score >= 8 (MEDIUM):** Throttle model API bandwidth, alert human-in-the-loop.
+    * **If Live Score >= 11 (HIGH):** Quarantine container to isolated subnet, snapshot memory.
+    * **If Live Score >= 13 (CRITICAL):** SIGKILL autonomous agent processes, trigger legal/compliance hold.
+    """)
