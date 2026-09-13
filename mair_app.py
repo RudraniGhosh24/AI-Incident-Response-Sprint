@@ -1,3 +1,4 @@
+import re
 import streamlit as st
 import networkx as nx
 import graphviz
@@ -198,7 +199,7 @@ with tab2:
         dot.attr('node', shape='box', fontname='Helvetica', fontsize='14', margin='0.2')
         
         for node in G.nodes():
-            safe_id = node.replace(":", "")
+            safe_id = re.sub(r"[^a-zA-Z0-9]", "_", node)
             if node in nodes_to_sever:
                 # Quarantined: thick border, light gray background, black text
                 dot.node(safe_id, label=node, style='rounded,filled', fillcolor='#e5e5e5', color='black', fontcolor='black', penwidth='2.0')
@@ -210,8 +211,8 @@ with tab2:
                 dot.node(safe_id, label=node, style='rounded,dotted', color='#666666', fontcolor='#666666', penwidth='1.0')
                 
         for u, v in G.edges():
-            safe_u = u.replace(":", "")
-            safe_v = v.replace(":", "")
+            safe_u = re.sub(r"[^a-zA-Z0-9]", "_", u)
+            safe_v = re.sub(r"[^a-zA-Z0-9]", "_", v)
             if u not in nodes_to_sever and v not in nodes_to_sever:
                 dot.edge(safe_u, safe_v, color='black', penwidth='1.5')
             else:
